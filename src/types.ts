@@ -15,6 +15,24 @@ export interface JobRequest {
   readonly agent_id: Agent['id'];
 }
 
-export interface FulfilledJobRequest extends JobRequest {
+interface JobAssignment extends JobRequest {
   readonly job_id: Job['id'];
 }
+
+export interface FulfilledJobRequest {
+  job_assigned: JobAssignment;
+}
+
+interface newAgentCommand {
+  new_agent: Agent;
+}
+
+interface newJobCommand {
+  new_job: Job;
+}
+
+interface newJobRequestCommand {
+  job_request: JobRequest;
+}
+
+export type Command = newAgentCommand | newJobCommand | newJobRequestCommand;
