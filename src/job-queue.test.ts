@@ -1,64 +1,73 @@
 import JobQueue from './job-queue';
-import { createJob } from './factories';
-import { JobSpecification } from './types';
+import { createAgent, createJob, createJobRequest } from './factories';
 
-const emptySpecification: JobSpecification = {
-  primarySkillset: [],
-  secondarySkillset: [],
-};
-
-const unskilledSpecification: JobSpecification = {
-  primarySkillset: ['bills-question'],
-  secondarySkillset: [],
-};
-
-const skilledSpecification: JobSpecification = {
-  primarySkillset: ['rewards-question', 'trivia-question'],
-  secondarySkillset: ['bills-question'],
-};
+const agentNoSkill = createAgent('dumbo');
+const agentSomeSkill = createAgent('dave', ['bills-question']);
+const agentSuperSkill = createAgent(
+  'bond',
+  ['rewards-question', 'trivia-question'],
+  ['bills-question']
+);
 
 describe('Job Queue', () => {
   it('should return null if no job is available', () => {
     const queue = new JobQueue();
-    expect(queue.assignJob(unskilledSpecification)).toBeNull();
+    queue.addAgent(agentSomeSkill);
+    expect(queue.getJob(createJobRequest(agentSomeSkill))).toBeUndefined();
   });
 
-  it('should return null if specification contains no skillsets', () => {
+  it('should return null if no agent has been added', () => {
     const queue = new JobQueue();
-    queue.add(createJob('bills-question'));
-    expect(queue.assignJob(emptySpecification)).toBeNull();
+    queue.addJob(createJob('bills-question'));
+    expect(queue.getJob(createJobRequest(agentSomeSkill))).toBeUndefined();
   });
 
-  it('should return null if no job matching specification is available', () => {
+  it('should return null if agent has no skillsets', () => {
     const queue = new JobQueue();
-    queue.add(createJob('rewards-question'));
-    expect(queue.assignJob(unskilledSpecification)).toBeNull();
+    queue.addAgent(agentNoSkill);
+    queue.addJob(createJob('bills-question'));
+    expect(queue.getJob(createJobRequest(agentNoSkill))).toBeUndefined();
+  });
+
+  it('should return null if no job matching agent skillsets is available', () => {
+    const queue = new JobQueue();
+    queue.addJob(createJob('rewards-question'));
+    expect(queue.getJob(createJobRequest(agentSomeSkill))).toBeUndefined();
   });
 
   it('should return the earlier queued job first', () => {
     const queue = new JobQueue();
-    queue.add(createJob('rewards-question'));
-    queue.add(createJob('trivia-question'));
-    expect(queue.assignJob(skilledSpecification)?.type).toEqual(
+    queue.addJob(createJob('rewards-question'));
+    queue.addJob(createJob('trivia-question'));
+    expect(queue.getJob(createJobRequest(agentSuperSkill))?.type).toEqual(
       'rewards-question'
     );
   });
 
   it('should return the urgent job first', () => {
     const queue = new JobQueue();
-    queue.add(createJob('rewards-question'));
-    queue.add(createJob('trivia-question', true));
-    expect(queue.assignJob(skilledSpecification)?.type).toEqual(
+    queue.addJob(createJob('rewards-question'));
+    queue.addJob(createJob('trivia-question', true));
+    expect(queue.getJob(createJobRequest(agentSuperSkill))?.type).toEqual(
       'trivia-question'
     );
   });
 
-  it('should return the job matching primary skillset first', () => {
+  it('should return the job matching agent primary skillset first', () => {
     const queue = new JobQueue();
-    queue.add(createJob('bills-question', true));
-    queue.add(createJob('rewards-question'));
-    expect(queue.assignJob(skilledSpecification)?.type).toEqual(
+    queue.addJob(createJob('bills-question', true));
+    queue.addJob(createJob('rewards-question'));
+    expect(queue.getJob(createJobRequest(agentSuperSkill))?.type).toEqual(
       'rewards-question'
+    );
+  });
+
+  it('should return the job matching agent secondary skillset if none match primary skillset', () => {
+    const queue = new JobQueue();
+    queue.addJob(createJob('features-question', true));
+    queue.addJob(createJob('bills-question'));
+    expect(queue.getJob(createJobRequest(agentSuperSkill))?.type).toEqual(
+      'bills-question'
     );
   });
 });

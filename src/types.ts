@@ -7,19 +7,18 @@ export interface Job {
 export interface Agent {
   id: string;
   name: string;
-  primarySkillset: string[];
-  secondarySkillset: string[];
+  primary_skillset: string[];
+  secondary_skillset: string[];
 }
 
 export interface JobRequest {
-  agentId: Agent['id'];
+  agent_id: Agent['id'];
 }
 
-export type JobSpecification = Pick<
-  Agent,
-  'primarySkillset' | 'secondarySkillset'
->;
-
 export interface FulfilledJobRequest extends JobRequest {
-  jobId: Job['id'];
+  job_id: Job['id'];
+}
+
+export interface Comparable<T> {
+  isBefore(item: T): boolean;
 }

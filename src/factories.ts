@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { Agent, Job, JobSpecification } from './types';
+import { Agent, Job, JobRequest } from './types';
 
 export function createJob(type: string, urgent = false): Job {
   return {
@@ -9,10 +9,21 @@ export function createJob(type: string, urgent = false): Job {
   };
 }
 
-export function createAgent(skills: JobSpecification, name = ''): Agent {
+export function createAgent(
+  name = '',
+  primary_skillset: string[] = [],
+  secondary_skillset: string[] = []
+): Agent {
   return {
     id: uuid(),
     name,
-    ...skills,
+    primary_skillset,
+    secondary_skillset,
+  };
+}
+
+export function createJobRequest(agent: Agent): JobRequest {
+  return {
+    agent_id: agent.id,
   };
 }
