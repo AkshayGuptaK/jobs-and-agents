@@ -15,6 +15,11 @@ export interface JobRequest {
   agentId: Agent['id'];
 }
 
+export type JobSpecification = Pick<
+  Agent,
+  'primarySkillset' | 'secondarySkillset'
+>;
+
 export interface FulfilledJobRequest extends JobRequest {
   jobId: Job['id'];
 }

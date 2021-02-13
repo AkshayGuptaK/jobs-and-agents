@@ -6,7 +6,7 @@ A _job_ is any task that needs to get done. It has a unique id, a type which den
 
 An _agent_ is someone that performs a job. They also have a unique id and two disjoint skill sets: primary and secondary. Skill sets are a simple list of job types that an agent is allowed to perform.
 
-The core operation of a job queue is the dequeue function, which, given a pool of jobs to be done and agent's job request, and a set of priority rules, returns the fittest job to be performed by that agent. The dequeue function abides to these rules:
+The core operation of the job queue is the dequeue function, which, given a pool of jobs to be done and agent's job request, and a set of priority rules, returns the fittest job to be performed by that agent. The dequeue function abides to these rules:
 
 - The list of jobs passed in is ordered by the time the they have entered the system.
 - Jobs that arrived first are assigned first, unless it has a "urgent" flag, in which case it has a higher priority.
